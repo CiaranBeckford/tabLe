@@ -1,4 +1,3 @@
-/* The GCD algorithm in MicroC */
 int a;
 int b;
 
@@ -19,9 +18,9 @@ int main() {
   x = 2;
   y = 14;
   z = 9%2;
-  print(7/5); /*div*/
-  print(3*4); /*mult*/
-  print(z); /*mod*/
+  print(7/5); ~div~
+  print(3*4); ~mult~
+  print(z); ~mod~
 
 
 
