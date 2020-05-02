@@ -5,7 +5,7 @@ Implement float exprs
 
 ~~Implement ~ comments~~
 
-Custom Makefile+test suite
+Custom Makefile+test suite - (Ciaran: currently working on)
 
 Implement arrays (start with int)
 
