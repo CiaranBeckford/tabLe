@@ -1,11 +1,12 @@
 (* Abstract Syntax Tree and functions for printing it *)
 
-type op = Add | Sub | Mult | Div | Mod | Equal | Neq | Less | And | Or
+type op = Add | Sub | Mult | Div | Mod | Equal | Neq | Geq | Leq | Greater | Less | And | Or
 
-type typ = Int | Bool
+type typ = Int | Float | Bool
 
 type expr =
     Literal of int
+  | Fliteral of string
   | BoolLit of bool
   | Id of string
   | Binop of expr * op * expr
@@ -44,12 +45,16 @@ let string_of_op = function
   | Mod -> "%"
   | Equal -> "=="
   | Neq -> "!="
+  | Geq -> ">="
+  | Leq -> "<="
   | Less -> "<"
+  | Greater -> ">"
   | And -> "&&"
   | Or -> "||"
 
 let rec string_of_expr = function
     Literal(l) -> string_of_int l
+  | Fliteral(l) -> l
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
   | Id(s) -> s
@@ -71,6 +76,7 @@ let rec string_of_stmt = function
 let string_of_typ = function
     Int -> "int"
   | Bool -> "bool"
+  | Float -> "float"
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 

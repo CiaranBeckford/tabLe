@@ -84,6 +84,7 @@ let check (globals, functions) =
     let rec check_expr = function
         Literal l -> (Int, SLiteral l)
       | BoolLit l -> (Bool, SBoolLit l)
+      | Fliteral l -> (Float, SFliteral l)
       | Id var -> (type_of_identifier var, SId var)
       | Assign(var, e) as ex ->
         let lt = type_of_identifier var
@@ -105,6 +106,7 @@ let check (globals, functions) =
           (* Determine expression type based on operator and operand types *)
           let t = match op with
               Add | Sub | Mult | Div | Mod when t1 = Int -> Int
+            | Add | Sub | Mult | Div when t1 = Float -> Float
             | Equal | Neq -> Bool
             | Less when t1 = Int -> Bool
             | And | Or when t1 = Bool -> Bool

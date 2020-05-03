@@ -5,13 +5,14 @@ open Ast
 %}
 
 %token SEMI LPAREN RPAREN LBRACE RBRACE PLUS MINUS MULT DIV MOD ASSIGN
-%token EQ NEQ LT AND OR
+%token EQ NEQ LT LTE GT GTE AND OR
 %token IF ELSE WHILE INT BOOL
 /* return, COMMA token */
 %token RETURN COMMA
+%token INT BOOL FLOAT
 %token <int> LITERAL
 %token <bool> BLIT
-%token <string> ID
+%token <string> ID FLIT
 %token EOF
 
 %start program
@@ -21,7 +22,7 @@ open Ast
 %left OR
 %left AND
 %left EQ NEQ
-%left LT
+%left LT GT LEQ GEQ
 %left PLUS MINUS
 %left MULT DIV
 %left MOD
@@ -48,6 +49,7 @@ vdecl:
 typ:
     INT   { Int   }
   | BOOL  { Bool  }
+  | FLOAT { Float }
 
 /* fdecl */
 fdecl:
@@ -87,6 +89,7 @@ stmt:
 
 expr:
     LITERAL          { Literal($1)            }
+  | FLIT	           { Fliteral($1)           }
   | BLIT             { BoolLit($1)            }
   | ID               { Id($1)                 }
   | expr PLUS   expr { Binop($1, Add,   $3)   }

@@ -2,7 +2,8 @@
 
 { open Microcparse }
 
-let digit = ['0'-'9']
+let digit = ['0' - '9']
+let digits = digit+
 let letter = ['a'-'z' 'A'-'Z']
 
 rule token = parse
@@ -24,6 +25,9 @@ rule token = parse
 | "=="     { EQ }
 | "!="     { NEQ }
 | '<'      { LT }
+| '>'      { GT }
+| "<="     { LTE }
+| ">="     { GTE }
 | "&&"     { AND }
 | "||"     { OR }
 | "if"     { IF }
@@ -32,10 +36,12 @@ rule token = parse
 (* RETURN *)
 | "return" { RETURN }
 | "int"    { INT }
+| "float"  { FLOAT }
 | "bool"   { BOOL }
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
-| digit+ as lem  { LITERAL(int_of_string lem) }
+| digits as lem  { LITERAL(int_of_string lem) }
+| digits '.'  digit*  ( ['e' 'E'] ['+' '-']? digits )? as lem { FLIT(lem) }
 | letter (digit | letter | '_')* as lem { ID(lem) }
 | eof { EOF }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }

@@ -29,12 +29,14 @@ let translate (globals, functions) =
   (* Get types from the context *)
   let i32_t      = L.i32_type    context
   and i8_t       = L.i8_type     context
-  and i1_t       = L.i1_type     context in
+  and i1_t       = L.i1_type     context
+  and float_t    = L.double_type context in
 
   (* Return the LLVM type for a MicroC type *)
   let ltype_of_typ = function
       A.Int   -> i32_t
     | A.Bool  -> i1_t
+    | A.Float -> float_t
   in
 
   (* Create a map of global variables after creating each *)
@@ -65,7 +67,8 @@ let translate (globals, functions) =
     let (the_function, _) = StringMap.find fdecl.sfname function_decls in
     let builder = L.builder_at_end context (L.entry_block the_function) in
 
-    let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder in
+    let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder
+    and float_format_str = L.build_global_stringptr "%g\n" "fmt" builder in
 
     (* Construct the function's "locals": formal arguments and locally
        declared variables.  Allocate each on the stack, initialize their
@@ -98,6 +101,7 @@ let translate (globals, functions) =
     (* Construct code for an expression; return its value *)
     let rec build_expr builder ((_, e) : sexpr) = match e with
         SLiteral i  -> L.const_int i32_t i
+      | SFliteral l -> L.const_float_of_string float_t l
       | SBoolLit b  -> L.const_int i1_t (if b then 1 else 0)
       | SId s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = build_expr builder e in
@@ -107,18 +111,34 @@ let translate (globals, functions) =
         and e2' = build_expr builder e2 in
         (match op with
            A.Add     -> L.build_add
+         | A.Add     -> L.build_fadd
          | A.Sub     -> L.build_sub
+         | A.Sub     -> L.build_fsub
          | A.Mult    -> L.build_mul
+         | A.Mult    -> L.build_fmul
          | A.Div     -> L.build_sdiv
+         | A.Div     -> L.build_fdiv
          | A.Mod     -> L.build_srem
          | A.And     -> L.build_and
          | A.Or      -> L.build_or
          | A.Equal   -> L.build_icmp L.Icmp.Eq
+         | A.Equal   -> L.build_fcmp L.Fcmp.Oeq
          | A.Neq     -> L.build_icmp L.Icmp.Ne
+         | A.Neq     -> L.build_fcmp L.Fcmp.One
          | A.Less    -> L.build_icmp L.Icmp.Slt
+         | A.Less    -> L.build_fcmp L.Fcmp.Olt
+         | A.Leq     -> L.build_icmp L.Icmp.Sle
+         | A.Leq     -> L.build_fcmp L.Fcmp.Ole
+         | A.Greater -> L.build_icmp L.Icmp.Sgt
+         | A.Greater -> L.build_fcmp L.Fcmp.Ogt
+         | A.Geq     -> L.build_icmp L.Icmp.Sge
+         | A.Geq     -> L.build_fcmp L.Fcmp.Oge
         ) e1' e2' "tmp" builder
       | SCall ("print", [e]) ->
         L.build_call printf_func [| int_format_str ; (build_expr builder e) |]
+          "printf" builder
+      | SCall ("print", [e]) ->
+        L.build_call printf_func [| float_format_str ; (build_expr builder e) |]
           "printf" builder
       | SCall (f, args) ->
         let (fdef, fdecl) = StringMap.find f function_decls in
