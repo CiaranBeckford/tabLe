@@ -68,6 +68,7 @@ let translate (globals, functions) =
     let builder = L.builder_at_end context (L.entry_block the_function) in
 
     let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder
+    and bool_format_str = L.build_global_stringptr "%d\n" "fmt" builder
     and float_format_str = L.build_global_stringptr "%g\n" "fmt" builder in
 
     (* Construct the function's "locals": formal arguments and locally
@@ -107,39 +108,45 @@ let translate (globals, functions) =
       | SAssign (s, e) -> let e' = build_expr builder e in
         ignore(L.build_store e' (lookup s) builder); e'
       | SBinop (e1, op, e2) ->
-        let e1' = build_expr builder e1
+        let (t, _) = e1
+        and e1' = build_expr builder e1
         and e2' = build_expr builder e2 in
-        (match op with
-           A.Add     -> L.build_add
-         | A.Add     -> L.build_fadd
-         | A.Sub     -> L.build_sub
-         | A.Sub     -> L.build_fsub
-         | A.Mult    -> L.build_mul
-         | A.Mult    -> L.build_fmul
-         | A.Div     -> L.build_sdiv
-         | A.Div     -> L.build_fdiv
-         | A.Mod     -> L.build_srem
-         | A.And     -> L.build_and
-         | A.Or      -> L.build_or
-         | A.Equal   -> L.build_icmp L.Icmp.Eq
-         | A.Equal   -> L.build_fcmp L.Fcmp.Oeq
-         | A.Neq     -> L.build_icmp L.Icmp.Ne
-         | A.Neq     -> L.build_fcmp L.Fcmp.One
-         | A.Less    -> L.build_icmp L.Icmp.Slt
-         | A.Less    -> L.build_fcmp L.Fcmp.Olt
-         | A.Leq     -> L.build_icmp L.Icmp.Sle
-         | A.Leq     -> L.build_fcmp L.Fcmp.Ole
-         | A.Greater -> L.build_icmp L.Icmp.Sgt
-         | A.Greater -> L.build_fcmp L.Fcmp.Ogt
-         | A.Geq     -> L.build_icmp L.Icmp.Sge
-         | A.Geq     -> L.build_fcmp L.Fcmp.Oge
-        ) e1' e2' "tmp" builder
-      | SCall ("print", [e]) ->
-        L.build_call printf_func [| int_format_str ; (build_expr builder e) |]
-          "printf" builder
-      | SCall ("print", [e]) ->
-        L.build_call printf_func [| float_format_str ; (build_expr builder e) |]
-          "printf" builder
+        (match snd e1, snd e2 with
+          | _ -> (match t with
+              A.Int -> ((match op with
+                 A.Add     -> L.build_add
+               | A.Sub     -> L.build_sub
+               | A.Mult    -> L.build_mul
+               | A.Div     -> L.build_sdiv
+               | A.Mod     -> L.build_srem
+               | A.And     -> L.build_and
+               | A.Or      -> L.build_or
+               | A.Equal   -> L.build_icmp L.Icmp.Eq
+               | A.Neq     -> L.build_icmp L.Icmp.Ne
+               | A.Less    -> L.build_icmp L.Icmp.Slt
+               | A.Leq     -> L.build_icmp L.Icmp.Sle
+               | A.Greater -> L.build_icmp L.Icmp.Sgt
+               | A.Geq     -> L.build_icmp L.Icmp.Sge
+               ) e1' e2' "tmp" builder)
+             |A.Float -> ((match op with
+               | A.Add     -> L.build_fadd
+               | A.Sub     -> L.build_fsub
+               | A.Mult    -> L.build_fmul
+               | A.Div     -> L.build_fdiv
+               | A.Equal   -> L.build_fcmp L.Fcmp.Oeq
+               | A.Neq     -> L.build_fcmp L.Fcmp.One
+               | A.Less    -> L.build_fcmp L.Fcmp.Olt
+               | A.Leq     -> L.build_fcmp L.Fcmp.Ole
+               | A.Greater -> L.build_fcmp L.Fcmp.Ogt
+               | A.Geq     -> L.build_fcmp L.Fcmp.Oge
+             ) e1' e2' "tmp" builder)))
+      | SCall ("print", [(styp, sexpr)]) -> (match styp with
+                        | A.Int -> L.build_call printf_func [| int_format_str ;
+                              (build_expr builder (styp, sexpr)) |] "print" builder
+                        | A.Float -> L.build_call printf_func [| float_format_str ;
+                              (build_expr builder (styp, sexpr)) |] "print" builder
+                        | A.Bool -> L.build_call printf_func [| bool_format_str ;
+                              (build_expr builder (styp, sexpr)) |] "print" builder)
       | SCall (f, args) ->
         let (fdef, fdecl) = StringMap.find f function_decls in
         let llargs = List.rev (List.map (build_expr builder) (List.rev args)) in
