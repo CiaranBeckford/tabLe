@@ -1,7 +1,7 @@
 # tabLe
 ## Ciaran Beckford, Yalon Gordon, Joshua Hazlett, Selena Huang
 ## TODO
-Implement float exprs
+~~Implement float exprs~~
 
 ~~Implement ~ comments~~
 
