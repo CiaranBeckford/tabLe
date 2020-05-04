@@ -11,6 +11,8 @@ Implement arrays (start with int)
 
 Implement void type
 
+Implement string type
+
 Implement for-loop
 
 Implement negative numbers
