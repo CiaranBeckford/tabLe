@@ -19,7 +19,7 @@ Implement negative numbers
 
 Impelement If w/o else
 
-Resolve function<> and a<b shift/reduce conflict
+~~Resolve function<> and a<b shift/reduce conflict~~
 
 ~~Implement function headers~~
 
