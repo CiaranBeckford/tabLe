@@ -40,6 +40,7 @@ rule token = parse
 | "bool"   { BOOL }
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
+| "def"    { FUNC }
 | digits as lem  { LITERAL(int_of_string lem) }
 | digits '.'  digit*  ( ['e' 'E'] ['+' '-']? digits )? as lem { FLIT(lem) }
 | letter (digit | letter | '_')* as lem { ID(lem) }

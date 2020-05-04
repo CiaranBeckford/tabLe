@@ -4,7 +4,7 @@
 open Ast
 %}
 
-%token SEMI LPAREN RPAREN LBRACE RBRACE PLUS MINUS MULT DIV MOD ASSIGN
+%token SEMI LPAREN RPAREN LBRACE RBRACE PLUS MINUS MULT DIV MOD ASSIGN FUNC
 %token EQ NEQ LT LTE GT GTE AND OR
 %token IF ELSE WHILE INT BOOL
 /* return, COMMA token */
@@ -53,14 +53,14 @@ typ:
 
 /* fdecl */
 fdecl:
-  vdecl LPAREN formals_opt RPAREN LBRACE vdecl_list stmt_list RBRACE
+  FUNC vdecl LT formals_opt GT LBRACE vdecl_list stmt_list RBRACE
   {
     {
-      rtyp=fst $1;
-      fname=snd $1;
-      formals=$3;
-      locals=$6;
-      body=$7
+      rtyp=fst $2;
+      fname=snd $2;
+      formals=$4;
+      locals=$7;
+      body=$8
     }
   }
 
@@ -103,9 +103,9 @@ expr:
   | expr AND    expr { Binop($1, And,   $3)   }
   | expr OR     expr { Binop($1, Or,    $3)   }
   | ID ASSIGN expr   { Assign($1, $3)         }
-  | LPAREN expr RPAREN { $2                   }
+  | LT expr GT { $2                   }
   /* call */
-  | ID LPAREN args_opt RPAREN { Call ($1, $3)  }
+  | ID LT args_opt GT  { Call ($1, $3)  }
 
 /* args_opt*/
 args_opt:
