@@ -1,0 +1,24 @@
+test - reason
+########################
+fail-assign3 - no void type yet
+dead1 and 2 both don't return error for code after return statement - unclear
+expr1 - no void type yet
+expr2 - no void type yet
+expr3 - no void type yet
+for1 - not implemented yet
+for2 - not implemented yet
+for3 - not implemented yet
+for4 - not implemented yet
+for5 - not implemented yet
+func3 - no void type yet
+func5 - no void type yet
+func7 - no void type yet
+func8 - no void type yet
+func9 - no void type yet
+
+global1 - no void type yet
+if1 - if without else
+if2 - if without else
+return2 - no void type yet
+printb - no error returned
+printbig - no error returned
