@@ -119,14 +119,13 @@ let translate (globals, functions) =
                | A.Mult    -> L.build_mul
                | A.Div     -> L.build_sdiv
                | A.Mod     -> L.build_srem
-               | A.And     -> L.build_and
-               | A.Or      -> L.build_or
                | A.Equal   -> L.build_icmp L.Icmp.Eq
                | A.Neq     -> L.build_icmp L.Icmp.Ne
                | A.Less    -> L.build_icmp L.Icmp.Slt
                | A.Leq     -> L.build_icmp L.Icmp.Sle
                | A.Greater -> L.build_icmp L.Icmp.Sgt
                | A.Geq     -> L.build_icmp L.Icmp.Sge
+               | _         -> raise (Failure "int operation not implemented")
                ) e1' e2' "tmp" builder)
              |A.Float -> ((match op with
                | A.Add     -> L.build_fadd
@@ -139,7 +138,13 @@ let translate (globals, functions) =
                | A.Leq     -> L.build_fcmp L.Fcmp.Ole
                | A.Greater -> L.build_fcmp L.Fcmp.Ogt
                | A.Geq     -> L.build_fcmp L.Fcmp.Oge
-             ) e1' e2' "tmp" builder)))
+               | _         -> raise (Failure "float operation not implemented")
+             ) e1' e2' "tmp" builder)
+             | A.Bool ->((match op with
+               | A.And     -> L.build_and
+               | A.Or      -> L.build_or
+               | _         -> raise (Failure "bool operation not implemented")
+              ) e1' e2' "tmp" builder)))
       | SCall ("print", [(styp, sexpr)]) -> (match styp with
                         | A.Int -> L.build_call printf_func [| int_format_str ;
                               (build_expr builder (styp, sexpr)) |] "print" builder
@@ -148,7 +153,7 @@ let translate (globals, functions) =
                         | A.Bool -> L.build_call printf_func [| bool_format_str ;
                               (build_expr builder (styp, sexpr)) |] "print" builder)
       | SCall (f, args) ->
-        let (fdef, fdecl) = StringMap.find f function_decls in
+        let (fdef, _) = StringMap.find f function_decls in
         let llargs = List.rev (List.map (build_expr builder) (List.rev args)) in
         let result = f ^ "_result" in
         L.build_call fdef (Array.of_list llargs) result builder
