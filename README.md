@@ -5,11 +5,23 @@
 
 ~~Implement ~ comments~~
 
-Custom Makefile+test suite - (Ciaran: currently working on)
+~~Custom Makefile+test suite~~
 
 Implement arrays (start with int)
 
-Implement function headers - (Ciaran: currently working on)
+Implement void type
+
+Implement string type
+
+Implement for-loop
+
+Implement negative numbers
+
+Impelement If w/o else
+
+Resolve function<> and a<b shift/reduce conflict
+
+~~Implement function headers~~
 
 Implement library of statistical methods for our language in C
 
