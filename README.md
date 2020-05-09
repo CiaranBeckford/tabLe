@@ -11,7 +11,7 @@ Implement arrays (start with int)
 
 Implement void type
 
-Implement string type
+Implement string type - (Currently working on - Ciaran)
 
 Implement for-loop
 
