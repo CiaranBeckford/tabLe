@@ -30,13 +30,15 @@ let translate (globals, functions) =
   let i32_t      = L.i32_type    context
   and i8_t       = L.i8_type     context
   and i1_t       = L.i1_type     context
-  and float_t    = L.double_type context in
+  and float_t    = L.double_type context
+  and str_t      = L.pointer_type (L.i8_type context) in
 
   (* Return the LLVM type for a MicroC type *)
   let ltype_of_typ = function
-      A.Int   -> i32_t
-    | A.Bool  -> i1_t
-    | A.Float -> float_t
+      A.Int    -> i32_t
+    | A.Bool   -> i1_t
+    | A.Float  -> float_t
+    | A.String ->  str_t
   in
 
   (* Create a map of global variables after creating each *)
@@ -53,6 +55,8 @@ let translate (globals, functions) =
 
   (* Define each function (arguments and return type) so we can
      call it even before we've created its body *)
+
+
   let function_decls : (L.llvalue * sfunc_def) StringMap.t =
     let function_decl m fdecl =
       let name = fdecl.sfname
@@ -69,7 +73,8 @@ let translate (globals, functions) =
 
     let int_format_str = L.build_global_stringptr "%d\n" "fmt" builder
     and bool_format_str = L.build_global_stringptr "%d\n" "fmt" builder
-    and float_format_str = L.build_global_stringptr "%g\n" "fmt" builder in
+    and float_format_str = L.build_global_stringptr "%g\n" "fmt" builder
+    and string_format_str = L.build_global_stringptr "%g\n" "fmt" builder in
 
     (* Construct the function's "locals": formal arguments and locally
        declared variables.  Allocate each on the stack, initialize their
@@ -104,6 +109,7 @@ let translate (globals, functions) =
         SLiteral i  -> L.const_int i32_t i
       | SFliteral l -> L.const_float_of_string float_t l
       | SBoolLit b  -> L.const_int i1_t (if b then 1 else 0)
+      | SStringLit s -> L.build_global_stringptr s "str" builder
       | SId s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = build_expr builder e in
         ignore(L.build_store e' (lookup s) builder); e'
@@ -139,18 +145,21 @@ let translate (globals, functions) =
                | A.Greater -> L.build_fcmp L.Fcmp.Ogt
                | A.Geq     -> L.build_fcmp L.Fcmp.Oge
                | _         -> raise (Failure "float operation not implemented")
-             ) e1' e2' "tmp" builder)
+               ) e1' e2' "tmp" builder)
              | A.Bool ->((match op with
                | A.And     -> L.build_and
                | A.Or      -> L.build_or
                | _         -> raise (Failure "bool operation not implemented")
-              ) e1' e2' "tmp" builder)))
+              ) e1' e2' "tmp" builder)
+              ))
       | SCall ("print", [(styp, sexpr)]) -> (match styp with
                         | A.Int -> L.build_call printf_func [| int_format_str ;
                               (build_expr builder (styp, sexpr)) |] "print" builder
                         | A.Float -> L.build_call printf_func [| float_format_str ;
                               (build_expr builder (styp, sexpr)) |] "print" builder
                         | A.Bool -> L.build_call printf_func [| bool_format_str ;
+                              (build_expr builder (styp, sexpr)) |] "print" builder
+                        | A.String -> L.build_call printf_func [| string_format_str ;
                               (build_expr builder (styp, sexpr)) |] "print" builder)
       | SCall (f, args) ->
         let (fdef, _) = StringMap.find f function_decls in

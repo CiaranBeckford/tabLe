@@ -9,10 +9,10 @@ open Ast
 %token IF ELSE WHILE INT BOOL
 /* return, COMMA token */
 %token RETURN COMMA
-%token INT BOOL FLOAT
+%token INT BOOL FLOAT STRING
 %token <int> LITERAL
 %token <bool> BLIT
-%token <string> ID FLIT
+%token <string> ID FLIT SLIT
 %token EOF
 
 %start program
@@ -47,9 +47,10 @@ vdecl:
   typ ID { ($1, $2) }
 
 typ:
-    INT   { Int   }
-  | BOOL  { Bool  }
-  | FLOAT { Float }
+    INT    { Int   }
+  | BOOL   { Bool  }
+  | FLOAT  { Float }
+  | STRING { String }
 
 /* fdecl */
 fdecl:
@@ -91,11 +92,12 @@ expr:
     LITERAL          { Literal($1)            }
   | FLIT	           { Fliteral($1)           }
   | BLIT             { BoolLit($1)            }
+  | SLIT             { StringLit($1)          }
   | ID               { Id($1)                 }
   | expr PLUS   expr { Binop($1, Add,   $3)   }
   | expr MINUS  expr { Binop($1, Sub,   $3)   }
   | expr MULT expr   { Binop($1, Mult,   $3)  }
-  | expr DIV expr    { Binop($1, Div,   $3)  }
+  | expr DIV expr    { Binop($1, Div,   $3)   }
   | expr MOD expr    { Binop($1, Mod,   $3)   }
   | expr EQ     expr { Binop($1, Equal, $3)   }
   | expr NEQ    expr { Binop($1, Neq, $3)     }
@@ -103,7 +105,7 @@ expr:
   | expr AND    expr { Binop($1, And,   $3)   }
   | expr OR     expr { Binop($1, Or,    $3)   }
   | ID ASSIGN expr   { Assign($1, $3)         }
-  | LT expr GT { $2                   }
+  | LT expr GT       { $2                     }
   /* call */
   | ID LT args_opt GT  { Call ($1, $3)  }
 

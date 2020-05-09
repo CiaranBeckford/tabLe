@@ -38,6 +38,8 @@ rule token = parse
 | "int"    { INT }
 | "float"  { FLOAT }
 | "bool"   { BOOL }
+| "string" { STRING }
+| '"' ([^'"']* as lem) '"' { SLIT(lem) }
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
 | "def"    { FUNC }

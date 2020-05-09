@@ -85,6 +85,7 @@ let check (globals, functions) =
         Literal l -> (Int, SLiteral l)
       | BoolLit l -> (Bool, SBoolLit l)
       | Fliteral l -> (Float, SFliteral l)
+      | StringLit l -> (String,SStringLit l)
       | Id var -> (type_of_identifier var, SId var)
       | Assign(var, e) as ex ->
         let lt = type_of_identifier var
@@ -107,6 +108,7 @@ let check (globals, functions) =
           let t = match op with
               Add | Sub | Mult | Div | Mod when t1 = Int -> Int
             | Add | Sub | Mult | Div when t1 = Float -> Float
+            | Add                    when t1 = String -> String
             | Equal | Neq -> Bool
             | Less when t1 = Int -> Bool
             | And | Or when t1 = Bool -> Bool
