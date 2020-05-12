@@ -1,7 +1,6 @@
 int a;
-bool b;
 
-def void foo<int c, bool d>
+def int foo<int c, bool d>
 {
   int dd;
   bool e;
@@ -10,6 +9,7 @@ def void foo<int c, bool d>
   a * 3;
   c / 2;
   d + a; ~ Error: bool + int ~
+  return 0;
 }
 
 def int main<>

@@ -1,5 +1,6 @@
-def void foo<int a, bool b>
+def int foo<int a, bool b>
 {
+return 0;
 }
 
 def int main<>

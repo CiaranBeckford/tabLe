@@ -56,7 +56,7 @@ let string_of_op = function
 let rec string_of_expr = function
     Literal(l) -> string_of_int l
   | Fliteral(l) -> l
-  | StringLit(l) -> l
+  | StringLit(l) -> "\"" ^ l ^ "\""
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
   | Id(s) -> s

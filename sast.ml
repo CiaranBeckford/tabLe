@@ -38,9 +38,9 @@ type sprogram = bind list * sfunc_def list
 (* Pretty-printing functions *)
 let rec string_of_sexpr (t, e) =
   "(" ^ string_of_typ t ^ " : " ^ (match e with
-        SLiteral(l) -> string_of_int l
+        SLiteral(l) -> string_of_int l 
       | SFliteral l -> l
-      | SStringLit(l) -> l 
+      | SStringLit(l) -> l
       | SBoolLit(true) -> "true"
       | SBoolLit(false) -> "false"
       | SId(s) -> s

@@ -53,6 +53,12 @@ let translate (globals, functions) =
   let printf_func : L.llvalue =
     L.declare_function "printf" printf_t the_module in
 
+  let string_concat_t : L.lltype =
+    L.function_type str_t [| str_t; str_t |] in
+  let string_concat_f : L.llvalue =
+    L.declare_function "string_concat" string_concat_t the_module in
+
+
   (* Define each function (arguments and return type) so we can
      call it even before we've created its body *)
 
@@ -89,8 +95,8 @@ let translate (globals, functions) =
       (* Allocate space for any locally declared variables and add the
        * resulting registers to our map *)
       and add_local m (t, n) =
-        let local_var = L.build_alloca (ltype_of_typ t) n builder
-        in StringMap.add n local_var m
+        let local_var = L.build_alloca (ltype_of_typ t) n builder in
+        StringMap.add n local_var m
       in
 
       let formals = List.fold_left2 add_formal StringMap.empty fdecl.sformals
@@ -151,7 +157,9 @@ let translate (globals, functions) =
                | A.Or      -> L.build_or
                | _         -> raise (Failure "bool operation not implemented")
               ) e1' e2' "tmp" builder)
-              ))
+              | A.String -> (match op with
+                 A.Add     -> L.build_call string_concat_f [| e1'; e2' |] "string_concat" builder
+               | _ -> raise (Failure ("operation " ^ (A.string_of_op op) ^ " not implemented"))) ))
       | SCall ("print", [(styp, sexpr)]) -> (match styp with
                         | A.Int -> L.build_call printf_func [| int_format_str ;
                               (build_expr builder (styp, sexpr)) |] "print" builder

@@ -1,11 +1,12 @@
-def void myvoid<>
+def float myfloat<>
 {
-  return;
+  float k;
+  return k;
 }
 
 def int main<>{
   int i;
 
-  i = myvoid<>; ~ Fail: assigning a void to an integer ~
+  i = myfloat<>; ~ Fail: assigning a float to an integer ~
   return 0;
 }

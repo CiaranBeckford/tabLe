@@ -1,11 +1,12 @@
 int a;
 bool b;
 
-def void foo<int c, bool d>
+def int foo<int c, bool d>
 {
   int d;
   bool e;
   b + a; ~ Error: bool + int ~
+  return d;
 }
 
 def int main<>

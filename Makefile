@@ -5,28 +5,35 @@
 # Easiest way to build: using ocamlbuild, which in turn uses ocamlfind
 
 .PHONY : all
-all : microc.native
+all : tabLe.native libapi.a
 
-.PHONY : microc.native
-microc.native :
+.PHONY : tabLe.native
+tabLe.native :
 	ocamlbuild -use-ocamlfind -pkgs llvm,llvm.analysis -cflags -w,+a-4 \
-		microc.native
-
+		tabLe.native
+	gcc -c api.c
+	clang -emit-llvm -o api.bc -c api.c -Wno-varargs
 # "make clean" removes all generated files
+
+libapi.a:	api.o
+	ar -crs libapi.a api.o
+	ranlib libapi.a
+
+api.o:	api.c
 
 .PHONY : clean
 clean :
 	ocamlbuild -clean
-	rm -rf testall.log *.diff microc scanner.ml parser.ml parser.mli
+	rm -rf testall.log *.diff tabLe scanner.ml parser.ml parser.mli
 	rm -rf printbig
-	rm -rf *.cmx *.cmi *.cmo *.cmx *.o *.s *.ll *.out *.exe *.diff
+	rm -rf *.cmx *.cmi *.cmo *.cmx *.o *.s *.ll *.out *.exe *.diff *.err *.bc *.a
 
 # More detailed: build using ocamlc/ocamlopt + ocamlfind to locate LLVM
 
-OBJS = ast.cmx codegen.cmx parser.cmx scanner.cmx semant.cmx microc.cmx
+OBJS = ast.cmx codegen.cmx parser.cmx scanner.cmx semant.cmx tabLe.cmx
 
-microc : $(OBJS)
-	ocamlfind ocamlopt -linkpkg -package llvm -package llvm.analysis $(OBJS) -o microc
+tabLe : $(OBJS)
+	ocamlfind ocamlopt -linkpkg -package llvm -package llvm.analysis $(OBJS) -o tabLe
 
 scanner.ml : scanner.mll
 	ocamllex scanner.mll
@@ -51,8 +58,8 @@ ast.cmo :
 ast.cmx :
 codegen.cmo : ast.cmo
 codegen.cmx : ast.cmx
-microc.cmo : semant.cmo scanner.cmo parser.cmi codegen.cmo ast.cmo
-microc.cmx : semant.cmx scanner.cmx parser.cmx codegen.cmx ast.cmx
+tabLe.cmo : semant.cmo scanner.cmo parser.cmi codegen.cmo ast.cmo
+tabLe.cmx : semant.cmx scanner.cmx parser.cmx codegen.cmx ast.cmx
 parser.cmo : ast.cmo parser.cmi
 parser.cmx : ast.cmx parser.cmi
 scanner.cmo : parser.cmi
@@ -68,18 +75,21 @@ TESTS = add1 arith1 arith2 arith3 fib for1 for2 func1 func2 func3	\
     hello if1 if2 if3 if4 if5 local1 local2 ops1 ops2 var1 var2		\
     while1 while2
 
-FAILS = assign1 assign2 assign3 dead1 dead2 expr1 expr2 for1 for2	\
+#FAILS = assign1 assign2 assign3 dead1 dead2 expr1 expr2 for1 for2	\
     for3 for4 for5 func1 func2 func3 func4 func5 func6 func7 func8	\
+    func9 global1 global2 if1 if2 if3 nomain return1 return2 while1	\
+    while2
+FAILS = assign1 assign2 assign3 dead1 dead2 expr1 expr2 func1 func2 func3 func4 func5 func6 func7 func8	\
     func9 global1 global2 if1 if2 if3 nomain return1 return2 while1	\
     while2
 
 TESTFILES = $(TESTS:%=test-%.mc) $(TESTS:%=test-%.out) \
 	    $(FAILS:%=fail-%.mc) $(FAILS:%=fail-%.err)
 
-TARFILES = ast.ml codegen.ml Makefile _tags microc.ml parser.mly README \
+TARFILES = ast.ml codegen.ml Makefile _tags tabLe.ml parser.mly README \
         scanner.mll semant.ml testall.sh arcade-font.pbm font2c \
 	$(TESTFILES:%=tests/%)
 
-microc-llvm.tar.gz : $(TARFILES)
-	cd .. && tar czf microc-llvm/microc-llvm.tar.gz \
-		$(TARFILES:%=microc-llvm/%)
+tabLe-llvm.tar.gz : $(TARFILES)
+	cd .. && tar czf tabLe-llvm/tabLe-llvm.tar.gz \
+		$(TARFILES:%=tabLe-llvm/%)

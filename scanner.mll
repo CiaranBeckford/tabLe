@@ -6,6 +6,8 @@ let digit = ['0' - '9']
 let digits = digit+
 let letter = ['a'-'z' 'A'-'Z']
 
+
+
 rule token = parse
   [' ' '\t' '\r' '\n'] { token lexbuf } (* Whitespace *)
 | "~"     { comment lexbuf }           (* Comments *)
@@ -39,7 +41,7 @@ rule token = parse
 | "float"  { FLOAT }
 | "bool"   { BOOL }
 | "string" { STRING }
-| '"' ([^'"']* as lem) '"' { SLIT(lem) }
+|  '"'letter*'"' as s{ SLIT((s)) }
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
 | "def"    { FUNC }

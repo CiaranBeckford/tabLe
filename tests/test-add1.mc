@@ -5,6 +5,8 @@ def int add<int x, int y>
 
 def int main<>
 {
-  print< add<17, 25> >;
+  int sum;
+  sum  = add<17, 25>;
+  print<sum>;
   return 0;
 }
