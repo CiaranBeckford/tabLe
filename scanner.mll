@@ -41,7 +41,8 @@ rule token = parse
 | "float"  { FLOAT }
 | "bool"   { BOOL }
 | "string" { STRING }
-|  '"'letter*'"' as s{ SLIT((s)) }
+| "none"   { NONE }
+| '"' ([^'"']* as s) '"'{ SLIT((s)) }
 | "true"   { BLIT(true)  }
 | "false"  { BLIT(false) }
 | "def"    { FUNC }

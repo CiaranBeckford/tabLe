@@ -1,4 +1,4 @@
-(* Semantic checking for the MicroC compiler *)
+(* Semantic checking for the tabLeC compiler *)
 
 open Ast
 open Sast
@@ -27,13 +27,18 @@ let check (globals, functions) =
 
   (* Collect function declarations for built-in functions: no bodies *)
   let built_in_decls =
-    StringMap.add "print" {
-      rtyp = Int;
-      fname = "print";
-      formals = [(Int, "x")];
-      locals = []; body = [] } StringMap.empty
+      let add_bind map (name, ty) = StringMap.add name {
+        rtyp = None;
+        fname = name;
+        formals = [(ty, "x")];
+        locals = []; body = [] } map
+      in List.fold_left add_bind StringMap.empty
+        [ ("print", Int);
+          ("printb", Bool);
+          ("printf", Float);
+          ("prints", String);
+          ("printbig", Int) ]
   in
-
   (* Add function name to symbol table *)
   let add_func map fd =
     let built_in_err = "function " ^ fd.fname ^ " may not be defined"
@@ -86,6 +91,7 @@ let check (globals, functions) =
       | BoolLit l -> (Bool, SBoolLit l)
       | Fliteral l -> (Float, SFliteral l)
       | StringLit l -> (String,SStringLit l)
+      | Noexpr     -> (None, SNoexpr)
       | Id var -> (type_of_identifier var, SId var)
       | Assign(var, e) as ex ->
         let lt = type_of_identifier var

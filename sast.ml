@@ -7,6 +7,7 @@ and sx =
     SLiteral of int
   | SFliteral of string
   | SStringLit of string
+  | SNoexpr
   | SBoolLit of bool
   | SId of string
   | SBinop of sexpr * op * sexpr
@@ -38,9 +39,10 @@ type sprogram = bind list * sfunc_def list
 (* Pretty-printing functions *)
 let rec string_of_sexpr (t, e) =
   "(" ^ string_of_typ t ^ " : " ^ (match e with
-        SLiteral(l) -> string_of_int l 
+        SLiteral(l) -> string_of_int l
       | SFliteral l -> l
       | SStringLit(l) -> l
+      | SNoexpr -> ""
       | SBoolLit(true) -> "true"
       | SBoolLit(false) -> "false"
       | SId(s) -> s

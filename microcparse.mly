@@ -1,4 +1,4 @@
-/* Ocamlyacc parser for MicroC */
+/* Ocamlyacc parser for tabLe */
 
 %{
 open Ast
@@ -8,7 +8,7 @@ open Ast
 %token EQ NEQ LTE GTE AND OR
 %token IF ELSE WHILE
 /* return, COMMA token */
-%token FUNC RETURN COMMA INT BOOL FLOAT STRING
+%token FUNC RETURN COMMA INT BOOL FLOAT STRING NONE
 %token PLUS MINUS MULT DIV MOD ASSIGN
 %token <int> LITERAL
 %token <bool> BLIT
@@ -50,6 +50,7 @@ typ:
   | BOOL   { Bool  }
   | FLOAT  { Float }
   | STRING { String }
+  | NONE   { None }
 
 /* fdecl */
 fdecl:
@@ -66,7 +67,7 @@ fdecl:
 
 /* formals_opt */
 formals_opt:
-  /*nothing*/ { [] }
+  /*nothing*/ { []  }
   | formals_list { $1 }
 
 formals_list:

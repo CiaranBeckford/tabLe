@@ -3,13 +3,17 @@
 # eval `opam config env`
 
 # Easiest way to build: using ocamlbuild, which in turn uses ocamlfind
+CC=gcc
+CFLAGS= -g -Wall
+LDFLAGS= -g
+LLC=llc
 
 .PHONY : all
-all : tabLe.native libapi.a
+all : tabLe.native api.o
 
 .PHONY : tabLe.native
 tabLe.native :
-	ocamlbuild -use-ocamlfind -pkgs llvm,llvm.analysis -cflags -w,+a-4 \
+	ocamlbuild -use-ocamlfind -pkgs llvm,llvm.analysis,llvm.bitreader -cflags -w,+a-4 \
 		tabLe.native
 	gcc -c api.c
 	clang -emit-llvm -o api.bc -c api.c -Wno-varargs
