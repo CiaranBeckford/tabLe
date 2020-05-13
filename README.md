@@ -4,13 +4,9 @@
 
 ### PRIORITY ITEMS
 
-Implement print function for other types
-
 Implement arrays (start with int)
 
-Implement library of statistical methods for our language in C
-
-Implement void/none type
+Link Stat functions
 
 Demo files
 
@@ -37,6 +33,12 @@ Impelement If w/o else
 ~~Custom Makefile+test suite~~
 
 ~~Implement string type~~
+
+~~Implement print function for other types
+
+~~Implement library of statistical methods for our language in C
+
+~~Implement void/none type~~
 
 
 ### Motivation
