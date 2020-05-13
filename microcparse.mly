@@ -8,7 +8,7 @@ open Ast
 %token EQ NEQ LTE GTE AND OR
 %token IF ELSE WHILE
 /* return, COMMA token */
-%token FUNC RETURN COMMA INT BOOL FLOAT STRING NONE
+%token FUNC RETURN COMMA INT BOOL FLOAT STRING NULL
 %token PLUS MINUS MULT DIV MOD ASSIGN
 %token <int> LITERAL
 %token <bool> BLIT
@@ -50,7 +50,7 @@ typ:
   | BOOL   { Bool  }
   | FLOAT  { Float }
   | STRING { String }
-  | NONE   { None }
+  | NULL   { Null }
 
 /* fdecl */
 fdecl:

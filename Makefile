@@ -9,9 +9,9 @@ LDFLAGS= -g
 LLC=llc
 
 .PHONY : all
-all : tabLe.native api.o
+all : tabLe.native libapi.a
 
-.PHONY : tabLe.native
+.PHONY : tabLe.native libapi.a
 tabLe.native :
 	ocamlbuild -use-ocamlfind -pkgs llvm,llvm.analysis,llvm.bitreader -cflags -w,+a-4 \
 		tabLe.native
@@ -30,7 +30,8 @@ clean :
 	ocamlbuild -clean
 	rm -rf testall.log *.diff tabLe scanner.ml parser.ml parser.mli
 	rm -rf printbig
-	rm -rf *.cmx *.cmi *.cmo *.cmx *.o *.s *.ll *.out *.exe *.diff *.err *.bc *.a
+	rm -rf *.cmx *.cmi *.cmo *.cmx *.o *.s *.ll *.out *.exe *.diff *.err *.bc *.a \
+	*.out
 
 # More detailed: build using ocamlc/ocamlopt + ocamlfind to locate LLVM
 

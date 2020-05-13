@@ -40,7 +40,7 @@ let translate (globals, functions) =
     | A.Bool   -> i1_t
     | A.Float  -> float_t
     | A.String ->  str_t
-    | A.None  -> none_t
+    | A.Null  -> none_t
   in
 
   (* Create a map of global variables after creating each *)
@@ -118,12 +118,48 @@ let translate (globals, functions) =
       | SId s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = build_expr builder e in
         ignore(L.build_store e' (lookup s) builder); e'
-      | SBinop ((A.String,_ ) as e1, op, e2) -> (
+      | SBinop ((A.Float,_ ) as e1, op, e2) ->
+        let e1' = build_expr builder e1
+        and e2' = build_expr builder e2 in
+        (match op with
+           A.Add     -> L.build_fadd
+         | A.Sub     -> L.build_fsub
+         | A.Mult    -> L.build_fmul
+         | A.Div     -> L.build_fdiv
+         | A.Mod     -> L.build_frem
+         | A.Equal   -> L.build_fcmp L.Fcmp.Oeq
+         | A.Neq     -> L.build_fcmp L.Fcmp.One
+         | A.Less    -> L.build_fcmp L.Fcmp.Olt
+         | A.Leq     -> L.build_fcmp L.Fcmp.Ole
+         | A.Greater -> L.build_fcmp L.Fcmp.Ogt
+         | A.Geq     -> L.build_fcmp L.Fcmp.Oge
+         | A.And | A.Or ->
+           raise (Failure "internal error: semant should have rejected and/or on float")
+        ) e1' e2' "tmp" builder
+      | SBinop ((A.String,_ ) as e1, op, e2) ->
         let e1' = build_expr builder e1
         and e2' = build_expr builder e2 in
         (match op with
            A.Add     -> L.build_call string_concat_f [| e1'; e2' |] "string_concat" builder
-           | _ -> raise (Failure ("operation " ^ (A.string_of_op op) ^ " not implemented"))))
+         | _ -> raise (Failure ("operation " ^ (A.string_of_op op) ^ " not implemented")))
+      | SBinop (e1, op, e2) ->
+        let e1' = build_expr builder e1
+        and e2' = build_expr builder e2 in
+        (match op with
+           A.Add     -> L.build_add
+         | A.Sub     -> L.build_sub
+         | A.Mult    -> L.build_mul
+         | A.Div     -> L.build_sdiv
+         | A.Mod     -> L.build_srem
+         | A.And     -> L.build_and
+         | A.Or      -> L.build_or
+         | A.Equal   -> L.build_icmp L.Icmp.Eq
+         | A.Neq     -> L.build_icmp L.Icmp.Ne
+         | A.Less    -> L.build_icmp L.Icmp.Slt
+         | A.Leq     -> L.build_icmp L.Icmp.Sle
+         | A.Greater -> L.build_icmp L.Icmp.Sgt
+         | A.Geq     -> L.build_icmp L.Icmp.Sge
+        ) e1' e2' "tmp" builder
       | SCall ("print", [e]) | SCall ("printb", [e]) ->
         L.build_call printf_func [| int_format_str ; (build_expr builder e) |] "printf" builder
       | SCall ("prints", [e]) ->
@@ -134,7 +170,7 @@ let translate (globals, functions) =
         let (fdef, fdecl) = StringMap.find f function_decls in
         let llargs = List.rev (List.map (build_expr builder) (List.rev args)) in
         let result = (match fdecl.srtyp with
-              A.None -> ""
+              A.Null -> ""
             | _ -> f ^ "_result") in
         L.build_call fdef (Array.of_list llargs) result builder
     in
@@ -155,7 +191,7 @@ let translate (globals, functions) =
         SBlock sl -> List.fold_left build_stmt builder sl
       | SExpr e -> ignore(build_expr builder e); builder
       | SReturn e -> ignore(match fdecl.srtyp with
-            A.None -> L.build_ret_void builder
+            A.Null -> L.build_ret_void builder
           | _ -> L.build_ret (build_expr builder e) builder );
         builder
       | SIf (predicate, then_stmt, else_stmt) ->
@@ -195,7 +231,7 @@ let translate (globals, functions) =
 
     (* Add a return if the last block falls off the end *)
     add_terminal func_builder (match fdecl.srtyp with
-      | A.None -> L.build_ret_void
+      | A.Null -> L.build_ret_void
       | t -> L.build_ret (L.const_int (ltype_of_typ t) 0))
 
   in

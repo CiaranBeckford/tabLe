@@ -28,7 +28,7 @@ let check (globals, functions) =
   (* Collect function declarations for built-in functions: no bodies *)
   let built_in_decls =
       let add_bind map (name, ty) = StringMap.add name {
-        rtyp = None;
+        rtyp = Null;
         fname = name;
         formals = [(ty, "x")];
         locals = []; body = [] } map
@@ -91,7 +91,7 @@ let check (globals, functions) =
       | BoolLit l -> (Bool, SBoolLit l)
       | Fliteral l -> (Float, SFliteral l)
       | StringLit l -> (String,SStringLit l)
-      | Noexpr     -> (None, SNoexpr)
+      | Noexpr     -> (Null, SNoexpr)
       | Id var -> (type_of_identifier var, SId var)
       | Assign(var, e) as ex ->
         let lt = type_of_identifier var

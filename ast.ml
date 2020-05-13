@@ -2,7 +2,7 @@
 
 type op = Add | Sub | Mult | Div | Mod | Equal | Neq | Geq | Leq | Greater | Less | And | Or
 
-type typ = Int | Float | Bool | String | None 
+type typ = Int | Float | Bool | String | Null
 
 type expr =
     Literal of int
@@ -82,7 +82,7 @@ let string_of_typ = function
   | Bool -> "bool"
   | Float -> "float"
   | String -> "string"
-  | None -> "none"
+  | Null -> "null"
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 

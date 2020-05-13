@@ -1,6 +1,8 @@
 (* Top-level of the MicroC compiler: scan & parse the input,
    check the resulting AST and generate an SAST from it, generate LLVM IR,
    and dump the module *)
+open Printf
+open Sys
 
 type action = Ast | Sast | LLVM_IR | Compile
 
@@ -28,6 +30,9 @@ let () =
       Ast     -> ()
     | Sast    -> print_string (Sast.string_of_sprogram sast)
     | LLVM_IR -> print_string (Llvm.string_of_llmodule (Irgen.translate sast))
-    | Compile -> let m = Irgen.translate sast in
-	Llvm_analysis.assert_valid_module m;
-	print_string (Llvm.string_of_llmodule m)
+    | Compile -> let llvm_module = Llvm.string_of_llmodule (Irgen.translate sast)
+    in let out = open_out "llvm.out" in
+    ignore (fprintf out "%s\n" llvm_module);
+    ignore (close_out out);
+    ignore (command "llc -relocation-model=pic llvm.out");
+    ignore(command "gcc llvm.out.s -L. -lapi -o a.out");()
