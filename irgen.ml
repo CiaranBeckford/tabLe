@@ -32,7 +32,8 @@ let translate (globals, functions) =
   and i1_t       = L.i1_type     context
   and float_t    = L.double_type context
   and str_t      = L.pointer_type (L.i8_type context)
-  and none_t     = L.void_type   context in
+  and none_t     = L.void_type   context
+  and list_t     = L.pointer_type (L.i8_type context) in
 
   (* Return the LLVM type for a tabLe type *)
   let ltype_of_typ = function
@@ -41,6 +42,7 @@ let translate (globals, functions) =
     | A.Float  -> float_t
     | A.String ->  str_t
     | A.Null  -> none_t
+    | A.List li -> list_t
   in
 
   (* Create a map of global variables after creating each *)
@@ -58,12 +60,22 @@ let translate (globals, functions) =
   let string_concat_t = L.function_type str_t [| str_t; str_t |] in
   let string_concat_f = L.declare_function "string_concat" string_concat_t the_module in
 
-  let mean_t : L.lltype =
-    L.function_type float_t [| L.pointer_type float_t |] in
-  let mean_func : L.llvalue =
-    L.declare_function "mean" mean_t the_module in
+  let append_double_t : L.lltype =
+        L.var_arg_function_type list_t [| list_t; i32_t |]
+    in
+    let append_double_func : L.llvalue =
+        L.declare_function "append_double" append_double_t the_module
+    in
+    let append_int_t : L.lltype =
+        L.var_arg_function_type list_t [| list_t; i32_t |]
+    in
+    let append_int_func : L.llvalue =
+        L.declare_function "append_int" append_int_t the_module in
 
-    let stdev_t : L.lltype =
+  let mean_t = L.function_type float_t [| list_t  |] in
+  let mean_func = L.declare_function "mean" mean_t the_module in
+(*
+  let stdev_t : L.lltype =
     L.function_type float_t [| L.pointer_type float_t |] in
   let stdev_func : L.llvalue =
     L.declare_function "stdev" stdev_t the_module in
@@ -82,8 +94,7 @@ let translate (globals, functions) =
     L.function_type float_t [| L.pointer_type float_t |] in
   let min_func : L.llvalue =
     L.declare_function "min" min_t the_module in
-
-
+*)
 
   (* Define each function (arguments and return type) so we can
      call it even before we've created its body *)
@@ -114,6 +125,7 @@ let translate (globals, functions) =
       let add_formal m (t, n) p =
         L.set_value_name n p;
         let local = L.build_alloca (ltype_of_typ t) n builder in
+
         ignore (L.build_store p local builder);
         StringMap.add n local m
 
@@ -121,6 +133,9 @@ let translate (globals, functions) =
        * resulting registers to our map *)
       and add_local m (t, n) =
         let local_var = L.build_alloca (ltype_of_typ t) n builder in
+        (*let _ = (match t with
+        | A.Mean -> L.build_call mean_func [| |] "" builder
+        | _ -> local_var) in*)
         StringMap.add n local_var m
       in
 
@@ -136,11 +151,17 @@ let translate (globals, functions) =
     in
 
     (* Construct code for an expression; return its value *)
-    let rec build_expr builder ((_, e) : sexpr) = match e with
+    let rec build_expr builder ((s, e) : sexpr) = match e with
         SLiteral i  -> L.const_int i32_t i
       | SFliteral l -> L.const_float_of_string float_t l
       | SBoolLit b  -> L.const_int i1_t (if b then 1 else 0)
       | SStringLit s -> L.build_global_stringptr s "str" builder
+      | SListLit l -> let list_builder l = Array.of_list (List.map (build_expr builder) l)
+                    in
+                    (match s with
+                    | A.List (A.Int) -> L.build_call append_int_func (Array.append [|L.const_pointer_null list_t; L.const_int i32_t (List.length l);|] (list_builder l)) "append_int" builder
+                    | A.List (A.Float) -> L.build_call append_double_func (Array.append [|L.const_pointer_null list_t; L.const_int i32_t (List.length l);|] (list_builder l)) "append_double" builder
+                    | _ -> raise (Failure "List type error"))
       | SNoexpr     -> L.const_int i32_t 0
       | SId s       -> L.build_load (lookup s) s builder
       | SAssign (s, e) -> let e' = build_expr builder e in
@@ -187,14 +208,16 @@ let translate (globals, functions) =
          | A.Greater -> L.build_icmp L.Icmp.Sgt
          | A.Geq     -> L.build_icmp L.Icmp.Sge
         ) e1' e2' "tmp" builder
-      | SCall ("print", [e]) | SCall ("printb", [e]) ->
+      | SCall ("print", [e]) ->
         L.build_call printf_func [| int_format_str ; (build_expr builder e) |] "printf" builder
       | SCall ("prints", [e]) ->
         L.build_call printf_func [| string_format_str ; (build_expr builder e) |] "printf" builder
       | SCall ("printf", [e]) ->
           L.build_call printf_func [| float_format_str ; (build_expr builder e) |] "printf" builder
       | SCall ("mean", [e]) ->
-          L.build_call mean_func [| e |] "mean" builder
+          L.build_call mean_func [| (build_expr builder e) |] "mean" builder
+      (*| SCall ("stdev", [e]) ->
+         L.build_call stdev_func [| (build_expr builder e) |] "stdev" builder*)
       | SCall (f, args) ->
         let (fdef, fdecl) = StringMap.find f function_decls in
         let llargs = List.rev (List.map (build_expr builder) (List.rev args)) in

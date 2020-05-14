@@ -27,17 +27,17 @@ let check (globals, functions) =
 
   (* Collect function declarations for built-in functions: no bodies *)
   let built_in_decls =
-      let add_bind map (name, ty) = StringMap.add name {
-        rtyp = Null;
-        fname = name;
-        formals = [(ty, "x")];
-        locals = []; body = [] } map
-      in List.fold_left add_bind StringMap.empty
-        [ ("print", Int);
-          ("printb", Bool);
-          ("printf", Float);
-          ("prints", String);
-          ("printbig", Int) ]
+    let add_bind map (typ, name, fml) = StringMap.add name {
+      rtyp = typ;
+      fname = name;
+      formals = fml;
+      locals = []; body = [] } map
+    in List.fold_left add_bind StringMap.empty
+      [ (Int, "print", [(Int, "x")]);
+        (Int, "prints", [(String, "x")]);
+        (Int, "printf", [(Float, "x")]);
+        (Float, "mean", [(List(Float), "x")]);
+        (Float,"stdev", [(List(Float), "x")]);]
   in
   (* Add function name to symbol table *)
   let add_func map fd =
@@ -84,13 +84,14 @@ let check (globals, functions) =
       try StringMap.find s symbols
       with Not_found -> raise (Failure ("undeclared identifier " ^ s))
     in
-
     (* Return a semantically-checked expression, i.e., with a type *)
+
     let rec check_expr = function
         Literal l -> (Int, SLiteral l)
       | BoolLit l -> (Bool, SBoolLit l)
       | Fliteral l -> (Float, SFliteral l)
       | StringLit l -> (String,SStringLit l)
+      | ListLit l ->    (List(Float), SListLit  (List.map check_expr l))
       | Noexpr     -> (Null, SNoexpr)
       | Id var -> (type_of_identifier var, SId var)
       | Assign(var, e) as ex ->

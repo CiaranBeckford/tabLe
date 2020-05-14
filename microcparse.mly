@@ -4,12 +4,12 @@
 open Ast
 %}
 
-%token SEMI LT GT LPAREN RPAREN LBRACE RBRACE
+%token SEMI LT GT LPAREN RPAREN LBRACE RBRACE LSB RSB
 %token EQ NEQ LTE GTE AND OR
 %token IF ELSE WHILE
 /* return, COMMA token */
 %token FUNC RETURN COMMA INT BOOL FLOAT STRING NULL
-%token PLUS MINUS MULT DIV MOD ASSIGN
+%token PLUS MINUS MULT DIV MOD ASSIGN ARRAYS
 %token <int> LITERAL
 %token <bool> BLIT
 %token <string> ID FLIT SLIT
@@ -50,7 +50,7 @@ typ:
   | BOOL   { Bool  }
   | FLOAT  { Float }
   | STRING { String }
-  | NULL   { Null }
+  | typ ARRAYS { List($1) }
 
 /* fdecl */
 fdecl:
@@ -88,12 +88,17 @@ stmt:
   /* return */
   | RETURN expr SEMI                        { Return $2      }
 
+expr_list:
+       expr { [$1] }
+      | expr COMMA expr_list { $1 :: $3 }
+
 expr:
     LITERAL          { Literal($1)            }
   | FLIT	           { Fliteral($1)           }
   | BLIT             { BoolLit($1)            }
   | SLIT             { StringLit($1)          }
   | ID               { Id($1)                 }
+  | LSB expr_list RSB       { ListLit($2) }
   | expr PLUS   expr { Binop($1, Add,   $3)   }
   | expr MINUS  expr { Binop($1, Sub,   $3)   }
   | expr MULT expr   { Binop($1, Mult,   $3)  }
