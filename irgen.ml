@@ -58,7 +58,7 @@ let translate (globals, functions) =
   let string_concat_t = L.function_type str_t [| str_t; str_t |] in
   let string_concat_f = L.declare_function "string_concat" string_concat_t the_module in
 
-  let mean_t : L.lltype =
+  (*let mean_t : L.lltype =
     L.function_type float_t [| L.pointer_type float_t |] in
   let mean_func : L.llvalue =
     L.declare_function "mean" mean_t the_module in
@@ -81,7 +81,7 @@ let translate (globals, functions) =
           let min_t : L.lltype =
     L.function_type float_t [| L.pointer_type float_t |] in
   let min_func : L.llvalue =
-    L.declare_function "min" min_t the_module in
+    L.declare_function "min" min_t the_module in*)
 
 
 
@@ -193,8 +193,6 @@ let translate (globals, functions) =
         L.build_call printf_func [| string_format_str ; (build_expr builder e) |] "printf" builder
       | SCall ("printf", [e]) ->
           L.build_call printf_func [| float_format_str ; (build_expr builder e) |] "printf" builder
-      | SCall ("mean", [e]) ->
-          L.build_call mean_func [| e |] "mean" builder
       | SCall (f, args) ->
         let (fdef, fdecl) = StringMap.find f function_decls in
         let llargs = List.rev (List.map (build_expr builder) (List.rev args)) in
