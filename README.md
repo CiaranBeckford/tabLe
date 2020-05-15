@@ -1,6 +1,14 @@
 # tabLe
 ## Ciaran Beckford, Yalon Gordon, Joshua Hazlett, Selena Huang
 
+### How to run
+
+```
+make
+./table.native [file.table]
+./a.out
+```
+
 ### Motivation
 tabLe is an imperative programming language with the simplicity of Python-like syntax and the strict typing of Java. With an imperative paradigm, strongly typed system, statically scoped, strict evaluation order and features like Algebraic Data Types. tabLe also includes a built-in math library that makes calling operations intuitive to the user. 
 

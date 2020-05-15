@@ -1,8 +1,16 @@
 def int main<>
 {
+<<<<<<< HEAD
   string h = "hello";
   print<h>;
   string w = "world";
+=======
+  string h;
+  string w;
+  h = "hello";
+  w = "world";
+  prints<h>;
+>>>>>>> d1ac4c916998996e6dc98af1c1a9c53373ca5729
   prints<w>;
   prints<"String concatenation">;
   prints< h + " " + w>;
