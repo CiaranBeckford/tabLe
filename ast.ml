@@ -2,12 +2,13 @@
 
 type op = Add | Sub | Mult | Div | Mod | Equal | Neq | Geq | Leq | Greater | Less | And | Or
 
-type typ = Int | Float | Bool | String | Null
+type typ = Int | Float | Bool | String | Null | List of typ
 
 type expr =
     Literal of int
   | Fliteral of string
   | StringLit of string
+  | ListLit of expr list
   | Noexpr
   | BoolLit of bool
   | Id of string
@@ -60,6 +61,7 @@ let rec string_of_expr = function
   | StringLit(l) -> "\"" ^ l ^ "\""
   | BoolLit(true) -> "true"
   | BoolLit(false) -> "false"
+  | ListLit (l) -> "[" ^ String.concat ", " (List.map string_of_expr l) ^ "]"
   | Noexpr -> ""
   | Id(s) -> s
   | Binop(e1, o, e2) ->
@@ -77,12 +79,13 @@ let rec string_of_stmt = function
                       string_of_stmt s1 ^ "else\n" ^ string_of_stmt s2
   | While(e, s) -> "while (" ^ string_of_expr e ^ ") " ^ string_of_stmt s
 
-let string_of_typ = function
+let rec string_of_typ = function
     Int -> "int"
   | Bool -> "bool"
   | Float -> "float"
   | String -> "string"
   | Null -> "null"
+  | List(t) -> string_of_typ t ^ "[]"
 
 let string_of_vdecl (t, id) = string_of_typ t ^ " " ^ id ^ ";\n"
 
