@@ -1,0 +1,11 @@
+def int main<>
+{
+  string h = "hello";
+  print<h>;
+  string w = "world";
+  print<w>;
+  print<"String concatenation">;
+  print< h + " " + w>;
+
+  return 0;
+}
