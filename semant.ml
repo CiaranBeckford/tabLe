@@ -37,7 +37,10 @@ let check (globals, functions) =
         (Int, "prints", [(String, "x")]);
         (Int, "printf", [(Float, "x")]);
         (Float, "mean", [(List(Float), "x")]);
-        (Float,"stdev", [(List(Float), "x")]);]
+        (Float,"stdev", [(List(Float), "x")]);
+        (Float,"variance", [(List(Float), "x")]);
+        (Float,"min", [(List(Float), "x")]);
+        (Float,"max", [(List(Float), "x")]);]
   in
   (* Add function name to symbol table *)
   let add_func map fd =

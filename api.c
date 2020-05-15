@@ -144,53 +144,63 @@ struct list_head *append_char(struct list_head *head, int num, ...)
 }
 
 
-double mean(double * array ){
-  float test;
-  test = array[0];
-  /*
-  printf("%f", test);
-  int size = *(&array + 1) - array;
+double mean(struct list_head *head){
+  int size = (head->length);
 	double sum = 0;
 	for(int i = 0; i < size; i++){
-		sum = sum + array[i];
+		sum = sum + head->data.f[i];
 	}
-	double avg = sum / (double) size;*/
-	return test;
-}
-/*
-double stdev( double * array ){
-	double dev = variance(array);
-	return sqrt(dev);
+	double avg = sum / (double) size;
+	return avg;
 }
 
-double variance(double * array){
-	double avg = mean(array);
-	int size = sizeof array / sizeof *array;
+double variance(struct list_head *head){
+	double avg = mean(head);
+	int size = (head->length);
 	double sum = 0;
 	for(int i = 0; i < size; i++){
-		sum = sum + pow((avg - array[i]), 2);
+    double exp = (avg - head->data.f[i])*(avg - head->data.f[i]);
+    sum = sum + exp;
 	}
-	double var = sum / size.f;
+	double var = sum / (double) size;
 	return var;
 }
+double root(double n){
+  double lo = 0, hi = n, mid;
+  for(int i = 0 ; i < 1000 ; i++){
+      mid = (lo+hi)/2;
+      if(mid*mid == n) return mid;
+      if(mid*mid > n) hi = mid;
+      else lo = mid;
+  }
+  return mid;
+}
+double stdev(struct list_head *head){
+	double dev = variance(head);
+  double exp = root(dev);
+  return exp;
+}
 
-double max(double * array){
-	double max = array[0];
+
+
+double max(struct list_head *head){
+  int size = (head->length);
+	double max = head->data.f[0];
 	for(int i = 0; i < size; i++){
-		if (array[i] > max){
-			max = array[i];
+		if (head->data.f[i] > max){
+			max = head->data.f[i];
 		}
 	}
 	return max;
 }
 
-double min(double * array){
-	double min = array[0];
+double min(struct list_head *head){
+  int size = (head->length);
+	double min = head->data.f[0];
 	for(int i = 0; i < size; i++){
-		if (array[i] < min){
-			min = array[i];
+		if (head->data.f[i] < min){
+			min = head->data.f[i];
 		}
 	}
 	return min;
 }
-*/
