@@ -1,21 +1,24 @@
 def int main<>
 {
-  int x = 10;
-  int y = 3;
-  
-  print<"Variable x:">;
+  int x;
+  int y;
+
+  x=10;
+  y=3;
+
+  prints<"Variable x:">;
   print<x>;
-  print<"Variable y:">;
+  prints<"Variable y:">;
   print<y>;
-  print<"Addition (x + y):"
+  prints<"Addition (x + y):">;
   print<x + y>;
-  print<"Subtraction (x - y):">;
+  prints<"Subtraction (x - y):">;
   print<x - y>;
-  print<"Multiplication (x * y):">;
+  prints<"Multiplication (x * y):">;
   print<x * y>;
-  print<"Division (x / y), should be an integer:">;
+  prints<"Division (x / y), should be an integer:">;
   print<x / y>;
-  print<"Modulo (x % y):"
+  prints<"Modulo (x % y):">;
   print<x % y>;
 
   return 0;
