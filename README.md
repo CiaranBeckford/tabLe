@@ -1,45 +1,5 @@
 # tabLe
 ## Ciaran Beckford, Yalon Gordon, Joshua Hazlett, Selena Huang
-## TODO
-
-### PRIORITY ITEMS
-
-Implement arrays (start with int)
-
-Link Stat functions
-
-Demo files
-
-### If there is time
-
-Implement Tuple
-
-Implement for-loop
-
-Implement negative numbers
-
-Impelement If w/o else
-
-### FINISHED
-
-~~Resolve function<> and a<b shift/reduce conflict~~
-
-~~Implement function headers~~
-
-~~Implement float exprs~~
-
-~~Implement ~ comments~~
-
-~~Custom Makefile+test suite~~
-
-~~Implement string type~~
-
-~~Implement print function for other types
-
-~~Implement library of statistical methods for our language in C
-
-~~Implement void/none type~~
-
 
 ### Motivation
 tabLe is an imperative programming language with the simplicity of Python-like syntax and the strict typing of Java. With an imperative paradigm, strongly typed system, statically scoped, strict evaluation order and features like Algebraic Data Types. tabLe also includes a built-in math library that makes calling operations intuitive to the user. 
