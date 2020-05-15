@@ -1,24 +1,5 @@
 def int main<>
 {
-<<<<<<< HEAD
-  int x = 10.0;
-  int y = 3.0;
-  
-  prints<"Variable x:">;
-  printf<x>;
-  prints<"Variable y:">;
-  printf<y>;
-  prints<"Addition (x + y):"
-  printf<x + y>;
-  prints<"Subtraction (x - y):">;
-  printf<x - y>;
-  prints<"Multiplication (x * y):">;
-  printf<x * y>;
-  prints<"Division (x / y):">;
-  printf<x / y>;
-  prints<"Modulo (x % y):"
-  printf<x % y>;
-=======
   int x;
   int y;
 
@@ -39,7 +20,6 @@ def int main<>
   print<x / y>;
   prints<"Modulo (x % y):">;
   print<x % y>;
->>>>>>> d1ac4c916998996e6dc98af1c1a9c53373ca5729
 
   return 0;
 }
