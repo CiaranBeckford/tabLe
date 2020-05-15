@@ -3,9 +3,9 @@ def int main<>
   string h = "hello";
   print<h>;
   string w = "world";
-  print<w>;
-  print<"String concatenation">;
-  print< h + " " + w>;
+  prints<w>;
+  prints<"String concatenation">;
+  prints< h + " " + w>;
 
   return 0;
 }
