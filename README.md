@@ -5,7 +5,7 @@
 
 ```
 make
-./table.native [file.table]
+./table.native [file.tabLe]
 ./a.out
 ```
 
